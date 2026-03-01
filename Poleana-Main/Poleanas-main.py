@@ -197,7 +197,7 @@
     "        print(camino)\n",
     "        print(int(len(self.visitados))-1)\n",
     "        \n",
-    "            \n",
+    "            \n",python3 Poleanas-main.py
     "       \n",
     "\n",
     "x,y=16,16\n",

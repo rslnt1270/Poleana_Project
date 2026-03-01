@@ -1,0 +1,46 @@
+=========================================
+POLEANA DIGITAL CORE - GAME RULES
+=========================================
+
+1. OBJETIVE
+- Move the 4 pieces from square 0 to the finish line (final squares) by going around the board once without being captured by the other players.
+
+2. PLAYERS
+-Each player has a color, 4 pieces, and a starting position.
+
+3- AREAS OF THE GAME BOARD
+
+-Base (Prision): Waiting area outside the circuit. Contains all 4 player pieces simultaneously (Position -1)
+-Starting squares (Start): To move from the BASE to the STARTING SQUARES, the fallowing specific combinations of dice are required: (Position 0)
+
+  - SUM COMBINATIONS: (Sum == 6):  [4 + 2] or  [5 + 1]
+
+  - PAIR COMBINATIONS: [3 + 3]: Exit by sum (6) + GRANTS EXTRA TURN. OR [6 + 6]: Special Exit. Allows you to remove TWO tokens at once + GRANTS EXTRA TURN. 
+
+  - SPECIAL COMBINATION: [6 + 3]: Special Exit. This is considered a valid combination for releasing a token, which goes directly to square 3.
+
+-Playing Area: The numbers on the 56 squares of the board.
+-Bridges: Squares located above each player's base, numbered from 1 to 7.  
+-Final squares: These are the last 7 squares to cross. When the player goes around the board and returns to the square with their respective color.
+ 
+
+4- ESPECIFIC RULES
+
+
+* If a player rolls three consecutive pairs (mules), they immediately lose their turn. The chips are not moved on the third roll.
+* Any pair grants an extra turn.
+* The dice can be used separately (moving two pieces) or added together (moving a single piece the total distance).
+* A capture is valid when it lands exactly on another player's square. It is not possible to capture in the bridge zone or on the starting squares (0 or 3).
+* The captured token returns to the BASE (square -1).
+* The player who captured it wins a +10 square bonus, which must be applied immediately to any of their active pieces.
+
+
+*Movement hierarchy:
+    1) Priority 1 (Drop Piece): If the player has pieces in BASE and the dice allow for a Move, it is mandatory to drop at least one piece before moving any other piece that is already on the board.
+    2) Priority 2 (Free Movement): Only if there are no pieces on the base or no starting combination was drawn, you can choose which piece to move.
+    3) Priority 3 (Capture): Capturing an enemy is optional, but the priority of “Lower Chip” always takes precedence over a potential capture.
+
+* Wall Effect: A Bridge (2 tiles of the same color) completely blocks the path. No one can jump over it.
+* A token inside a bridge cannot be captured or jumped over.
+* Entering the finish line: The exact number is required. If the number is higher, the Rebound rule applies (advance to the finish line and move back the excess). In addition, you cannot skip a token.
+
