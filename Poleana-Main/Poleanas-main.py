@@ -38,7 +38,7 @@ class Laberinto:
         ax.imshow(self.imagen, extent=[0, self.cols, self.renglones, 0])
         ax.set_xticks(range(self.cols + 1))
         ax.set_yticks(range(self.renglones + 1,0))
-        ax.grid(True, color='gray', linestyle='--', alpha=0.5)
+        ax.grid(True, color='gray', linestyle='--', alpha=0.8)
             
         direcciones = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         Colores = ['lime', 'red', 'blue', 'yellow']
