@@ -2,7 +2,7 @@
  "cells": [
   {
    "cell_type": "code",
-   "execution_count": 2,
+   "execution_count": 3,
    "id": "8f9444fb-a666-4a6c-a6eb-0b25694d67b3",
    "metadata": {},
    "outputs": [
@@ -11,7 +11,7 @@
      "output_type": "stream",
      "text": [
       " 1 1\n",
-      " 13 13\n"
+      " 2 2\n"
      ]
     },
     {
@@ -40,9 +40,6 @@
     "        self.laberinto = self.leer_txt()\n",
     "        self.imagen = plt.imread(self.ruta_png)\n",
     "        \n",
-    "        # Ajustar puertas manualmente\n",
-    "        self.ajustar_puertas()\n",
-    "\n",
     "        # Coordenadas automáticas para probar rápido (puedes volver a poner input si quieres)\n",
     "        self.x1, self.y1 = [int(x) for x in input().split()]\n",
     "        self.x2, self.y2 = [int(x) for x in input().split()]\n",
@@ -52,11 +49,6 @@
     "    def leer_txt(self):\n",
     "        with open(self.ruta_txt, \"r\", encoding=\"utf-8\") as archivo:\n",
     "            return [list(linea.strip()) for linea in archivo]\n",
-    "\n",
-    "    def ajustar_puertas(self):\n",
-    "        for col in range(5, 10):\n",
-    "            self.laberinto[1][col] = '.'\n",
-    "            self.laberinto[14][col] = '.'\n",
     "\n",
     "    def bfs(self):\n",
     "        plt.ion()  # Activar modo interactivo\n",
