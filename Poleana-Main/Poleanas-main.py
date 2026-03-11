@@ -1,190 +1,120 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": 1,
-   "id": "8f9444fb-a666-4a6c-a6eb-0b25694d67b3",
-   "metadata": {
-    "scrolled": true
-   },
-   "outputs": [
-    {
-     "name": "stdin",
-     "output_type": "stream",
-     "text": [
-      "ingresa la cantidad de jugadores (1 a 4): 4\n"
-     ]
-    },
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "¡Jugador 1 completó el circuito!\n",
-      "¡Jugador 2 completó el circuito!\n",
-      "¡Jugador 3 completó el circuito!\n",
-      "¡Jugador 4 completó el circuito!\n"
-     ]
-    }
-   ],
-   "source": [
-    "import matplotlib\n",
-    "matplotlib.use(\"TkAgg\")  # Esencial para la ventana animada\n",
-    "import matplotlib.pyplot as plt\n",
-    "from collections import deque\n",
-    "import time\n",
-    "\n",
-    "import matplotlib.pyplot as plt\n",
-    "\n",
-    "class Laberinto:\n",
-    "    def __init__(self, renglones, cols, Tabs, ruta_png):\n",
-    "        self.renglones = renglones\n",
-    "        self.cols = cols\n",
-    "        # self.ruta_txt ya no es necesario como variable única, usamos Tabs\n",
-    "        self.ruta_png = ruta_png\n",
-    "        \n",
-    "        # Corrección: Cerrar paréntesis del input\n",
-    "        self.jugadores = int(input(\"ingresa la cantidad de jugadores (1 a 4):\") )# Forzado a 1 para la modalidad DFS 1-62\n",
-    "        \n",
-    "        self.Tabs = Tabs # Esta es tu lista externa (ej: [\"T1.txt\", \"T2.txt\"])\n",
-    "        \n",
-    "        # Cargar imagen\n",
-    "        self.imagen = plt.imread(self.ruta_png)\n",
-    "        \n",
-    "        # Lista para guardar las matrices de cada archivo\n",
-    "        self.laberintos = []\n",
-    "        \n",
-    "        # Corrección: Iterar directamente sobre la lista Tabs\n",
-    "        for txt in self.Tabs:\n",
-    "            matriz = self.leer_txt(txt)\n",
-    "            self.laberintos.append(matriz)\n",
-    "        \n",
-    "        # Coordenadas (Mantengo tus listas originales)\n",
-    "        self.Orig_x = [6, 15, 9, 0]   \n",
-    "        self.Orig_y = [15, 9, 0, 6]   \n",
-    "        \n",
-    "        self.Destin_x = [12, 2, 2, 11]  \n",
-    "        self.Destin_y = [12, 11, 2, 2] \n",
-    "\n",
-    "    def leer_txt(self, txt):\n",
-    "        with open(txt, \"r\", encoding=\"utf-8\") as archivo:\n",
-    "            # split() separa correctamente números como '35' o '22' [cite: 1]\n",
-    "            # if linea.strip() ignora líneas vacías [cite: 3, 7]\n",
-    "            return [linea.split() for linea in archivo if linea.strip()]\n",
-    "\n",
-    "    def dfs_estricto_poleana(self):\n",
-    "        num_jugadores = int(self.jugadores)\n",
-    "        # 8 Direcciones (Cruz + Diagonales)\n",
-    "        direcciones = [\n",
-    "            (0, 1), (1, 0), (0, -1), (-1, 0),  # Ortogonales\n",
-    "            (1, 1), (1, -1), (-1, 1), (-1, -1) # Diagonales (al final)\n",
-    "        ]\n",
-    "        \n",
-    "        Colores = ['lime', 'red', 'blue', 'yellow']\n",
-    "        plt.ion()\n",
-    "        fig, ax = plt.subplots(figsize=(8, 8))\n",
-    "        ax.imshow(self.imagen, extent=[0, self.cols, self.renglones, 0])\n",
-    "\n",
-    "        for i in range(num_jugadores): \n",
-    "            x, y = self.Orig_x[i], self.Orig_y[i]\n",
-    "            \n",
-    "            try:\n",
-    "                v_actual = int(self.laberintos[i][y][x])\n",
-    "            except: \n",
-    "                print(f\"¡PETÓ! Origen inválido para jugador {i+1}\")\n",
-    "                continue\n",
-    "\n",
-    "            visitados = {(x, y)}\n",
-    "            camino_abierto = True\n",
-    "\n",
-    "            while camino_abierto:\n",
-    "                # Dibujar paso actual\n",
-    "                rect = plt.Rectangle((x, y), 1, 1, facecolor=Colores[i], alpha=0.6)\n",
-    "                ax.add_patch(rect)\n",
-    "                plt.pause(0.01)\n",
-    "\n",
-    "                if v_actual == 56:\n",
-    "                    print(f\"¡Jugador {i+1} completó el circuito!\")\n",
-    "                    break\n",
-    "\n",
-    "                # 1. BUSCAR REPETIDOS (X) PRIMERO\n",
-    "                proximo_paso = None\n",
-    "                for dx, dy in direcciones:\n",
-    "                    nx, ny = x + dx, y + dy\n",
-    "                    if 0 <= ny < len(self.laberintos[i]) and 0 <= nx < len(self.laberintos[i][0]):\n",
-    "                        token = self.laberintos[i][ny][nx]\n",
-    "                        if token != '#' and (nx, ny) not in visitados:\n",
-    "                            if int(token) == v_actual:\n",
-    "                                proximo_paso = (nx, ny, v_actual)\n",
-    "                                break # Prioridad absoluta: encontró un igual, se mueve ya.\n",
-    "\n",
-    "                # 2. SI NO HUBO IGUALES, BUSCAR SUCESOR (X+1)\n",
-    "                if not proximo_paso:\n",
-    "                    for dx, dy in direcciones:\n",
-    "                        nx, ny = x + dx, y + dy\n",
-    "                        if 0 <= ny < len(self.laberintos[i]) and 0 <= nx < len(self.laberintos[i][0]):\n",
-    "                            token = self.laberintos[i][ny][nx]\n",
-    "                            if token != '#' and (nx, ny) not in visitados:\n",
-    "                                if int(token) == v_actual + 1:\n",
-    "                                    proximo_paso = (nx, ny, v_actual + 1)\n",
-    "                                    break # Encontró el progreso.\n",
-    "\n",
-    "                # 3. SI NO HAY NADA, PETAR\n",
-    "                if proximo_paso:\n",
-    "                    x, y, v_actual = proximo_paso\n",
-    "                    visitados.add((x, y))\n",
-    "                else:\n",
-    "                    print(f\"¡PETÓ! El jugador {i+1} se quedó sin camino en el número {v_actual} ({x},{y})\")\n",
-    "                    camino_abierto = False\n",
-    "                            \n",
-    "        plt.ioff()\n",
-    "        plt.show()\n",
-    "        \n",
-    "\n",
-    "# --- EJECUCIÓN ---\n",
-    "plt.close('all') # Cerrar ventanas muertas\n",
-    "rutas = [\"TABLERO1.txt\", \"TABLERO2.txt\", \"TABLERO3.txt\", \"TABLERO4.txt\"]\n",
-    "Poleana1 = Laberinto(16, 16, rutas, \"Poleana-1.png\")\n",
-    "Poleana1.dfs_estricto_poleana()\n",
-    "\n",
-    "\n"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "id": "714a680f-01cc-4d52-b591-3d66857caca3",
-   "metadata": {},
-   "source": [
-    "#### "
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "ee144e03-9c47-44f1-ba3e-df0dc4b7cefb",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3 (ipykernel)",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.10.19"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+import matplotlib
+matplotlib.use("TkAgg")  # Esencial para la ventana animada
+import matplotlib.pyplot as plt
+from collections import deque
+import time
+
+import matplotlib.pyplot as plt
+
+class Laberinto:
+    def __init__(self, renglones, cols, Tabs, ruta_png):
+        self.renglones = renglones
+        self.cols = cols
+        # self.ruta_txt ya no es necesario como variable única, usamos Tabs
+        self.ruta_png = ruta_png
+        
+        # Corrección: Cerrar paréntesis del input
+        self.jugadores = int(input("ingresa la cantidad de jugadores (1 a 4):") )# Forzado a 1 para la modalidad DFS 1-62
+        
+        self.Tabs = Tabs # Esta es tu lista externa (ej: ["T1.txt", "T2.txt"])
+        
+        # Cargar imagen
+        self.imagen = plt.imread(self.ruta_png)
+        
+        # Lista para guardar las matrices de cada archivo
+        self.laberintos = []
+        
+        # Corrección: Iterar directamente sobre la lista Tabs
+        for txt in self.Tabs:
+            matriz = self.leer_txt(txt)
+            self.laberintos.append(matriz)
+        
+        # Coordenadas (Mantengo tus listas originales)
+        self.Orig_x = [6, 15, 9, 0]   
+        self.Orig_y = [15, 9, 0, 6]   
+        
+        self.Destin_x = [12, 2, 2, 11]  
+        self.Destin_y = [12, 11, 2, 2] 
+
+    def leer_txt(self, txt):
+        with open(txt, "r", encoding="utf-8") as archivo:
+            # split() separa correctamente números como '35' o '22' [cite: 1]
+            # if linea.strip() ignora líneas vacías [cite: 3, 7]
+            return [linea.split() for linea in archivo if linea.strip()]
+
+    def dfs_estricto_poleana(self):
+        num_jugadores = int(self.jugadores)
+        # 8 Direcciones (Cruz + Diagonales)
+        direcciones = [
+            (0, 1), (1, 0), (0, -1), (-1, 0),  # Ortogonales
+            (1, 1), (1, -1), (-1, 1), (-1, -1) # Diagonales (al final)
+        ]
+        
+        Colores = ['lime', 'red', 'blue', 'yellow']
+        plt.ion()
+        fig, ax = plt.subplots(figsize=(8, 8))
+        ax.imshow(self.imagen, extent=[0, self.cols, self.renglones, 0])
+
+        for i in range(num_jugadores): 
+            x, y = self.Orig_x[i], self.Orig_y[i]
+            
+            try:
+                v_actual = int(self.laberintos[i][y][x])
+            except: 
+                print(f"¡PETÓ! Origen inválido para jugador {i+1}")
+                continue
+
+            visitados = {(x, y)}
+            camino_abierto = True
+
+            while camino_abierto:
+                # Dibujar paso actual
+                rect = plt.Rectangle((x, y), 1, 1, facecolor=Colores[i], alpha=0.6)
+                ax.add_patch(rect)
+                plt.pause(0.01)
+
+                if v_actual == 56:
+                    print(f"¡Jugador {i+1} completó el circuito!")
+                    break
+
+                # 1. BUSCAR REPETIDOS (X) PRIMERO
+                proximo_paso = None
+                for dx, dy in direcciones:
+                    nx, ny = x + dx, y + dy
+                    if 0 <= ny < len(self.laberintos[i]) and 0 <= nx < len(self.laberintos[i][0]):
+                        token = self.laberintos[i][ny][nx]
+                        if token != '#' and (nx, ny) not in visitados:
+                            if int(token) == v_actual:
+                                proximo_paso = (nx, ny, v_actual)
+                                break # Prioridad absoluta: encontró un igual, se mueve ya.
+
+                # 2. SI NO HUBO IGUALES, BUSCAR SUCESOR (X+1)
+                if not proximo_paso:
+                    for dx, dy in direcciones:
+                        nx, ny = x + dx, y + dy
+                        if 0 <= ny < len(self.laberintos[i]) and 0 <= nx < len(self.laberintos[i][0]):
+                            token = self.laberintos[i][ny][nx]
+                            if token != '#' and (nx, ny) not in visitados:
+                                if int(token) == v_actual + 1:
+                                    proximo_paso = (nx, ny, v_actual + 1)
+                                    break # Encontró el progreso.
+
+                # 3. SI NO HAY NADA, PETAR
+                if proximo_paso:
+                    x, y, v_actual = proximo_paso
+                    visitados.add((x, y))
+                else:
+                    print(f"¡PETÓ! El jugador {i+1} se quedó sin camino en el número {v_actual} ({x},{y})")
+                    camino_abierto = False
+                            
+        plt.ioff()
+        plt.show()
+        
+
+# --- EJECUCIÓN ---
+plt.close('all') # Cerrar ventanas muertas
+rutas = ["TABLERO1.txt", "TABLERO2.txt", "TABLERO3.txt", "TABLERO4.txt"]
+Poleana1 = Laberinto(16, 16, rutas, "Poleana-1.png")
+Poleana1.dfs_estricto_poleana()
+
+
