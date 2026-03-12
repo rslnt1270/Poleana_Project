@@ -59,17 +59,17 @@ class Laberinto:
         # --- CREACIÓN DE LOS MARCADORES DIGITALES ---
         # 1. Indicador del jugador en turno (Arriba, centrado)
         txt_turno = ax.text(8, 6, '', fontsize=20, fontweight='bold', 
-                            color='white', ha='center', va='center',
+                            color='black', ha='center', va='center',
                             bbox=dict(facecolor='black', alpha=0.8, boxstyle='round,pad=0.3'))
 
         # 2. Los dos dados (Abajo, separados)
         txt_marcador1 = ax.text(6.5, 8, '', fontsize=45, fontweight='bold', 
                                color='white', ha='center', va='center',
-                               bbox=dict(facecolor='black', alpha=0.8, edgecolor='cyan', boxstyle='round,pad=0.3'))
+                               bbox=dict(facecolor='black', alpha=0.5, edgecolor='cyan', boxstyle='round,pad=0.08'))
         
         txt_marcador2 = ax.text(9.5, 8, '', fontsize=45, fontweight='bold', 
                                color='white', ha='center', va='center',
-                               bbox=dict(facecolor='black', alpha=0.8, edgecolor='magenta', boxstyle='round,pad=0.3'))
+                               bbox=dict(facecolor='black', alpha=0.5, edgecolor='magenta', boxstyle='round,pad=0.08'))
 
         pos_x = [x for x in self.Orig_x]
         pos_y = [y for y in self.Orig_y]
@@ -92,7 +92,7 @@ class Laberinto:
                 # --- ACTUALIZAR INDICADOR DE TURNO ---
                 txt_turno.set_text(f"JUGADOR {i+1}")
                 txt_turno.set_color(Colores[i]) # El texto toma el color del jugador
-                txt_turno.set_bbox(dict(facecolor='black', alpha=0.8, edgecolor=Colores[i], boxstyle='round,pad=0.3'))
+                txt_turno.set_bbox(dict(facecolor='black', alpha=0.5, edgecolor='white', boxstyle='round, pad=0.2'))
                 plt.pause(0.1) # Pequeña pausa para que se note el cambio de turno
 
                 # --- ANIMACIÓN DE LOS DOS DADOS ---
@@ -103,19 +103,19 @@ class Laberinto:
                     txt_marcador1.set_text(f"{num1}")
                     txt_marcador2.set_text(f"{num2}")
                     
-                    txt_marcador1.set_color('yellow')
-                    txt_marcador2.set_color('yellow')
+                    txt_marcador1.set_color('black')
+                    txt_marcador2.set_color('black')
                     plt.pause(0.05)
                 
                 # Resultado final de los dados
                 dado1 = random.randint(1, 6)
                 dado2 = random.randint(1, 6)
-                pasos_dados = dado1 + dado2 
+                pasos_dados = (dado1 + dado2)-1 
                 
                 txt_marcador1.set_text(f"{dado1}")
                 txt_marcador2.set_text(f"{dado2}")
-                txt_marcador1.set_color('lime')
-                txt_marcador2.set_color('lime')
+                txt_marcador1.set_color('white')
+                txt_marcador2.set_color('white')
                 plt.pause(0.5) 
 
                 v_inicio_turno = valores_actuales[i]
