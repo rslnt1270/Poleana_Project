@@ -3,21 +3,17 @@ matplotlib.use("TkAgg")  # Esencial para la ventana animada
 import matplotlib.pyplot as plt
 from collections import deque
 import time
-import random as random
-
-import matplotlib.pyplot as plt
+import random
 
 class Laberinto:
     def __init__(self, renglones, cols, Tabs, ruta_png):
         self.renglones = renglones
         self.cols = cols
-        # self.ruta_txt ya no es necesario como variable única, usamos Tabs
         self.ruta_png = ruta_png
         
-        # Corrección: Cerrar paréntesis del input
-        self.jugadores = int(input("ingresa la cantidad de jugadores (1 a 4):") )# Forzado a 1 para la modalidad DFS 1-62
+        self.jugadores = int(input("Ingresa la cantidad de jugadores (1 a 4): "))
         
-        self.Tabs = Tabs # Esta es tu lista externa (ej: ["T1.txt", "T2.txt"])
+        self.Tabs = Tabs
         
         # Cargar imagen
         self.imagen = plt.imread(self.ruta_png)
@@ -25,12 +21,11 @@ class Laberinto:
         # Lista para guardar las matrices de cada archivo
         self.laberintos = []
         
-        # Corrección: Iterar directamente sobre la lista Tabs
         for txt in self.Tabs:
             matriz = self.leer_txt(txt)
             self.laberintos.append(matriz)
         
-        # Coordenadas (Mantengo tus listas originales)
+        # Coordenadas
         self.Orig_x = [6, 15, 9, 0]   
         self.Orig_y = [15, 9, 0, 6]   
         
@@ -39,10 +34,7 @@ class Laberinto:
 
     def leer_txt(self, txt):
         with open(txt, "r", encoding="utf-8") as archivo:
-            # split() separa correctamente números como '35' o '22' [cite: 1]
-            # if linea.strip() ignora líneas vacías [cite: 3, 7]
             return [linea.split() for linea in archivo if linea.strip()]
-
 
     def dfs6(self):
         num_jugadores = int(self.jugadores)
@@ -57,12 +49,10 @@ class Laberinto:
         ax.imshow(self.imagen, extent=[0, self.cols, self.renglones, 0])
 
         # --- CREACIÓN DE LOS MARCADORES DIGITALES ---
-        # 1. Indicador del jugador en turno (Arriba, centrado)
         txt_turno = ax.text(8, 6, '', fontsize=20, fontweight='bold', 
                             color='black', ha='center', va='center',
                             bbox=dict(facecolor='black', alpha=0.8, boxstyle='round,pad=0.3'))
 
-        # 2. Los dos dados (Abajo, separados)
         txt_marcador1 = ax.text(6.5, 8, '', fontsize=45, fontweight='bold', 
                                color='white', ha='center', va='center',
                                bbox=dict(facecolor='black', alpha=0.5, edgecolor='cyan', boxstyle='round,pad=0.08'))
@@ -91,9 +81,9 @@ class Laberinto:
 
                 # --- ACTUALIZAR INDICADOR DE TURNO ---
                 txt_turno.set_text(f"JUGADOR {i+1}")
-                txt_turno.set_color(Colores[i]) # El texto toma el color del jugador
+                txt_turno.set_color(Colores[i])
                 txt_turno.set_bbox(dict(facecolor='black', alpha=0.5, edgecolor='white', boxstyle='round, pad=0.2'))
-                plt.pause(0.1) # Pequeña pausa para que se note el cambio de turno
+                plt.pause(0.1)
 
                 # --- ANIMACIÓN DE LOS DOS DADOS ---
                 for _ in range(15): 
@@ -110,7 +100,7 @@ class Laberinto:
                 # Resultado final de los dados
                 dado1 = random.randint(1, 6)
                 dado2 = random.randint(1, 6)
-                pasos_dados = (dado1 + dado2)-1 
+                pasos_restantes = dado1 + dado2 # Total de movimientos permitidos
                 
                 txt_marcador1.set_text(f"{dado1}")
                 txt_marcador2.set_text(f"{dado2}")
@@ -118,42 +108,40 @@ class Laberinto:
                 txt_marcador2.set_color('white')
                 plt.pause(0.5) 
 
-                v_inicio_turno = valores_actuales[i]
-                meta_turno = v_inicio_turno + pasos_dados
-                if meta_turno > 56: meta_turno = 56
-
-                camino_abierto = True
-                while camino_abierto:
+                # --- LÓGICA DE MOVIMIENTO PASO A PASO ---
+                while pasos_restantes > 0:
                     x, y = pos_x[i], pos_y[i]
                     v_actual = valores_actuales[i]
                     
+                    # Dibujar rastro
                     rect = plt.Rectangle((x, y), 1, 1, facecolor=Colores[i], alpha=0.6)
                     ax.add_patch(rect)
                     plt.pause(0.05)
 
-                    if v_actual >= meta_turno:
-                        if v_actual >= 56:
-                            txt_turno.set_text("¡GANADOR!")
-                            txt_marcador1.set_text("WI")
-                            txt_marcador2.set_text("N!")
-                            print(f"¡EL JUGADOR {i+1} HA GANADO!")
-                            partida_en_curso = False
+                    # Verificar si ya llegó a la meta
+                    if v_actual >= 56:
+                        txt_turno.set_text("¡GANADOR!")
+                        txt_marcador1.set_text("WI")
+                        txt_marcador2.set_text("N!")
+                        print(f"¡EL JUGADOR {i+1} HA GANADO!")
+                        partida_en_curso = False
                         break
 
                     proximo_paso = None
-                    # Prioridad 1: Mismo número
+                    
+                    # Prioridad 1: Siguiente número (avanzar a la siguiente casilla de la ruta)
                     for dx, dy in direcciones:
                         nx, ny = x + dx, y + dy
                         if 0 <= ny < len(self.laberintos[i]) and 0 <= nx < len(self.laberintos[i][0]):
                             token = self.laberintos[i][ny][nx]
                             if token != '#' and (nx, ny) not in visitados_por_jugador[i]:
                                 try:
-                                    if int(token) == v_actual:
+                                    if int(token) == v_actual + 1:
                                         proximo_paso = (nx, ny, int(token))
                                         break
-                                except: pass
+                                except ValueError: pass
                     
-                    # Prioridad 2: Siguiente número
+                    # Prioridad 2: Mismo número (moverse dentro de la misma casilla si ocupa varios espacios)
                     if not proximo_paso:
                         for dx, dy in direcciones:
                             nx, ny = x + dx, y + dy
@@ -161,28 +149,28 @@ class Laberinto:
                                 token = self.laberintos[i][ny][nx]
                                 if token != '#' and (nx, ny) not in visitados_por_jugador[i]:
                                     try:
-                                        if int(token) == v_actual + 1:
+                                        if int(token) == v_actual:
                                             proximo_paso = (nx, ny, int(token))
                                             break
-                                    except: pass
+                                    except ValueError: pass
 
                     if proximo_paso:
                         pos_x[i], pos_y[i], valores_actuales[i] = proximo_paso
                         visitados_por_jugador[i].add((pos_x[i], pos_y[i]))
+                        pasos_restantes -= 1 # Resta un movimiento exitoso
                     else:
-                        print(f"Jugador {i+1} bloqueado.")
-                        camino_abierto = False
+                        print(f"Jugador {i+1} bloqueado o sin ruta válida.")
+                        break # Rompe el ciclo de pasos si se queda atorado
                 
                 if not partida_en_curso: break
 
         plt.ioff()
         plt.show()
-        
 
 # --- EJECUCIÓN ---
-plt.close('all') # Cerrar ventanas muertas
-rutas = ["TABLERO1.txt", "TABLERO2.txt", "TABLERO3.txt", "TABLERO4.txt"]
-Poleana1 = Laberinto(16, 16, rutas, "Poleana-1.png")
-Poleana1.dfs6()
-
-
+if __name__ == "__main__":
+    plt.close('all') # Cerrar ventanas muertas
+    rutas = ["TABLERO1.txt", "TABLERO2.txt", "TABLERO3.txt", "TABLERO4.txt"]
+    # Asegúrate de que estos archivos existan en el mismo directorio donde ejecutas el script
+    Poleana1 = Laberinto(16, 16, rutas, "Poleana-1.png")
+    Poleana1.dfs6()
